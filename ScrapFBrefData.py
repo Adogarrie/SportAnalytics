@@ -22,13 +22,19 @@ def scrape_fbref_tables(table_url_dict: dict[str, str], save_csv: bool = False) 
         try:
             html = get_html(url)
             df = extract_table(html, table_id)
+
+            # --- LIMPIEZA SEGÚN NOTEBOOK ---
+            df.columns = df.columns.get_level_values(1)
+            df = df.reset_index().rename(columns={'index': 'Player_id'})
+            df = df[df['Player_id'] != 'Rk']
+
             tables[table_id] = df
             print(f"[✓] Tabla '{table_id}' extraída de {url}. Filas: {len(df)}")
             if save_csv:
-                df.to_csv(f"datasets/{table_id}.csv")
+                df.to_csv(f"datasets/{table_id}.csv", index=False)
         except Exception as e:
             print(f"[✗] Error con tabla '{table_id}': {e}")
-    return tables
+    return
 
 if __name__ == "__main__":
     # Diccionario de IDs de tablas y sus URLs correspondientes
